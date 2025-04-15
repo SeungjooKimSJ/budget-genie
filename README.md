@@ -1,2 +1,6 @@
 # penny-journal
-A web application built with Next.js and Supabase for tracking personal finances.
+
+Penny Journal is a web application built with Next.js, Tailwind CSS, and Supabase for tracking personal finances. <br />
+I created this app with the belief that tracking daily expenses helps build financial awareness and better money habits. <br />
+Users can log their spending, view monthly summaries, and filter records by category or payment method. <br />
+I personally use it to manage my family’s budget and keep an eye on our spending patterns.
