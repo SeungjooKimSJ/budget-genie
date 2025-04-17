@@ -9,6 +9,7 @@ type AuthContextType = {
   user: User | null;
   session: Session | null;
   signOut: () => Promise<void>;
+  isLoading: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,10 +31,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session) {
           setSession(session);
           setUser(session.user);
+          if (pathname === '/login' || pathname === '/') {
+            router.push('/dashboard');
+          }
         } else {
           setSession(null);
           setUser(null);
-          if (pathname !== '/login') {
+          if (pathname !== '/login' && pathname !== '/' && !pathname.startsWith('/_next')) {
             router.push('/login');
           }
         }
@@ -53,6 +57,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session) {
           setSession(session);
           setUser(session.user);
+          if (pathname === '/login' || pathname === '/') {
+            router.push('/dashboard');
+          }
         } else {
           setSession(null);
           setUser(null);
@@ -77,11 +84,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return null;
   }
 
   return (
-    <AuthContext.Provider value={{ user, session, signOut }}>
+    <AuthContext.Provider value={{ user, session, signOut, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

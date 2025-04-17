@@ -42,7 +42,9 @@ export async function middleware(req: NextRequest) {
     if (pathname.startsWith('/_next') || 
         pathname.startsWith('/static') || 
         pathname.startsWith('/api/') ||
-        pathname === '/favicon.ico') {
+        pathname === '/favicon.ico' ||
+        pathname === '/' ||  // Allow access to splash screen
+        pathname === '/login') {  // Allow access to login page
       return res;
     }
 
@@ -52,15 +54,18 @@ export async function middleware(req: NextRequest) {
       return res;
     }
 
-    // Handle authentication for SSR requests
+    // Handle authentication for protected routes
     if (!session && pathname !== '/login') {
       const redirectUrl = new URL('/login', req.url);
       return NextResponse.redirect(redirectUrl);
     }
 
-    if (session && pathname === '/login') {
-      const redirectUrl = new URL('/', req.url);
-      return NextResponse.redirect(redirectUrl);
+    // Redirect authenticated users to dashboard
+    if (session) {
+      if (pathname === '/login' || pathname === '/') {
+        const redirectUrl = new URL('/dashboard', req.url);
+        return NextResponse.redirect(redirectUrl);
+      }
     }
 
     return res;
