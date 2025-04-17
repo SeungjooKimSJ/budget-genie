@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Session, User } from '@supabase/supabase-js';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
@@ -19,65 +19,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname();
   const supabase = createClientComponentClient();
 
   useEffect(() => {
+    // 세션 상태 변경 시 실행할 핸들러
+    const handleAuthChange = async (session: Session | null) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session) {
+        console.log('Session is valid, user is authenticated');
+      } else {
+        console.log('No valid session found');
+      }
+    };
+
+    // 초기 세션 체크
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        console.log('Initial session check:', session ? 'Session exists' : 'No session');
-        
-        if (session) {
-          setSession(session);
-          setUser(session.user);
-          if (pathname === '/login' || pathname === '/') {
-            router.push('/dashboard');
-          }
-        } else {
-          setSession(null);
-          setUser(null);
-          if (pathname !== '/login' && pathname !== '/' && !pathname.startsWith('/_next')) {
-            router.push('/login');
-          }
-        }
+        await handleAuthChange(session);
       } catch (error) {
-        console.error('Error checking session:', error);
+        console.error('Error checking initial session:', error);
+        await handleAuthChange(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    initializeAuth();
-
+    // Auth 상태 변경 구독
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event);
-        
-        if (session) {
-          setSession(session);
-          setUser(session.user);
-          if (pathname === '/login' || pathname === '/') {
-            router.push('/dashboard');
-          }
-        } else {
-          setSession(null);
-          setUser(null);
-          if (event === 'SIGNED_OUT') {
-            router.push('/login');
-          }
-        }
+        await handleAuthChange(session);
       }
     );
+
+    initializeAuth();
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [pathname, router, supabase]);
+  }, [supabase]);
+
+  // 라우팅 로직을 별도의 useEffect로 분리
+  useEffect(() => {
+    if (!isLoading) {
+      if (session) {
+        if (window.location.pathname === '/login') {
+          router.replace('/dashboard');
+        }
+      } else {
+        if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
+          router.replace('/login');
+        }
+      }
+    }
+  }, [session, isLoading, router]);
 
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
+      router.push('/login');
     } catch (error) {
       console.error('Error signing out:', error);
     }

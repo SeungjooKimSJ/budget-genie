@@ -2,29 +2,39 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/components/AuthProvider';
-import { supabase, Database } from '@/utils/supabase';
+import { createClientSupabaseClient } from '@/utils/supabase';
+import type { Database } from '@/types/supabase';
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns';
 import { useRouter } from 'next/navigation';
 
 type Expense = Database['public']['Tables']['expenses']['Row'];
 
 export default function DashboardPage() {
-  const { signOut } = useAuth();
+  const { session, signOut } = useAuth();
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // 세션이 없으면 로그인 페이지로 리다이렉트
+  useEffect(() => {
+    if (!session) {
+      router.replace('/login');
+    }
+  }, [session, router]);
+
   const fetchExpenses = useCallback(async () => {
+    if (!session?.user?.id) return;
+
     setIsLoading(true);
     const start = startOfMonth(selectedDate);
     const end = endOfMonth(selectedDate);
 
+    const supabase = createClientSupabaseClient();
     const { data, error } = await supabase
       .from('expenses')
       .select('*')
-      // TEMP: Auth disabled - fetching all expenses
-      // .eq('user_id', user?.id)
+      .eq('user_id', session.user.id)
       .gte('date', start.toISOString())
       .lte('date', end.toISOString())
       .order('date', { ascending: false });
@@ -35,7 +45,7 @@ export default function DashboardPage() {
       setExpenses(data || []);
     }
     setIsLoading(false);
-  }, [selectedDate]);
+  }, [selectedDate, session?.user?.id]);
 
   useEffect(() => {
     fetchExpenses();
