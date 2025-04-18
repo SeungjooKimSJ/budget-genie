@@ -1,4 +1,4 @@
-# penny-journal
+# Budget Genie
 
 Penny Journal is a web application built with Next.js, Tailwind CSS, and Supabase for tracking personal finances. <br /> <br />
 I created this app with the belief that tracking daily expenses helps build financial awareness and better money habits. <br />
