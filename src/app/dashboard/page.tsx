@@ -67,10 +67,10 @@ export default function DashboardPage() {
                 setSelectedDate(new Date());
                 router.push('/dashboard');
               }}
-              className="text-2xl font-semibold text-gray-900 cursor-pointer 
-                hover:text-indigo-600 transition-colors duration-200"
+              className="text-2xl font-semibold text-genie-blue cursor-pointer 
+                hover:text-genie-blue/80 transition-colors duration-200 magic-hover"
             >
-              Penny Journal
+              Budget Genie
             </h1>
             <button
               onClick={() => signOut()}

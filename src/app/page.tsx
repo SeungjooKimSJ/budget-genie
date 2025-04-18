@@ -60,8 +60,8 @@ export default function HomePage() {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-gray-900">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-indigo-600 dark:text-indigo-400">
-            Penny Journal
+          <h1 className="text-4xl font-bold text-genie-blue dark:text-genie-blue magic-hover">
+            Budget Genie
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
             Loading...
@@ -89,11 +89,11 @@ export default function HomePage() {
         tabIndex={0}
         aria-label="Go to login page"
       >
-        <h1 className="text-4xl font-bold text-indigo-600 dark:text-indigo-400">
-          Penny Journal
+        <h1 className="text-4xl font-bold text-genie-blue dark:text-genie-blue magic-hover">
+          Budget Genie
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Track your expenses wisely
+          Your magical financial companion
         </p>
         <p className="mt-4 text-sm text-gray-500">
           {timerStarted ? `Click anywhere to continue` : 'Initializing...'}

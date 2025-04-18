@@ -1,26 +1,83 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --genie-blue: #5C6AC4;
+  --mint-green: #5FC9A4;
+  --gold: #FFD466;
+  --coral: #FF6B6B;
+  --background: #F8FAFC;
+  --foreground: #1E293B;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-[var(--background)] text-[var(--foreground)] font-sans;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-[var(--genie-blue)] text-white px-4 py-2 rounded-lg 
+           hover:bg-opacity-90 transition-all duration-200
+           hover:shadow-md hover:scale-[1.02];
+  }
+
+  .btn-secondary {
+    @apply bg-[var(--mint-green)] text-white px-4 py-2 rounded-lg 
+           hover:bg-opacity-90 transition-all duration-200
+           hover:shadow-md hover:scale-[1.02];
+  }
+
+  .btn-accent {
+    @apply bg-[var(--gold)] text-[var(--foreground)] px-4 py-2 rounded-lg 
+           hover:bg-opacity-90 transition-all duration-200
+           hover:shadow-md hover:scale-[1.02];
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2 rounded-lg border border-gray-200
+           focus:outline-none focus:ring-2 focus:ring-[var(--genie-blue)]
+           transition-all duration-200;
+  }
+
+  .magic-hover {
+    @apply hover:shadow-[0_0_15px_rgba(92,106,196,0.2)] 
+           transition-all duration-300;
+  }
+}
+
+/* Genie Magic Animation */
+@keyframes sparkle {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.magic-effect {
+  @apply relative;
+}
+
+.magic-effect::after {
+  content: '✨';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  animation: sparkle 1.5s infinite;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.magic-effect:hover::after {
+  opacity: 1;
 }
