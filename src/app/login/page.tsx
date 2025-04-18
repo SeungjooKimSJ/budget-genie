@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { getRandomSlogan } from '@/utils/slogans';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -11,6 +12,11 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClientComponentClient();
   const router = useRouter();
+  const [slogan, setSlogan] = useState('');
+
+  useEffect(() => {
+    setSlogan(getRandomSlogan());
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +57,7 @@ export default function LoginPage() {
             Budget Genie
           </h1>
           <p className="mt-2 text-gray-600">
-            Your magical financial companion
+            {slogan}
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

@@ -4,6 +4,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
+import { getRandomSlogan } from '@/utils/slogans';
 
 export default function HomePage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function HomePage() {
   const [isVisible, setIsVisible] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [timerStarted, setTimerStarted] = useState(false);
+  const [slogan, setSlogan] = useState('');
 
   // 로그인 페이지로의 전환을 처리하는 함수
   const handleTransition = useCallback(() => {
@@ -48,6 +50,11 @@ export default function HomePage() {
 
     return () => clearTimeout(timer);
   }, [timerStarted, isTransitioning, handleTransition]);
+
+  // 컴포넌트 마운트 시 랜덤 슬로건 설정
+  useEffect(() => {
+    setSlogan(getRandomSlogan());
+  }, []);
 
   // 화면 클릭 시 로그인 페이지로 이동
   const handleClick = (e: React.MouseEvent) => {
@@ -93,7 +100,7 @@ export default function HomePage() {
           Budget Genie
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Your magical financial companion
+          {slogan}
         </p>
         <p className="mt-4 text-sm text-gray-500">
           {timerStarted ? `Click anywhere to continue` : 'Initializing...'}
