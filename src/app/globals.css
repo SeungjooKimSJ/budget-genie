@@ -1,83 +1,206 @@
+/* @tailwind 규칙을 사용하기 위한 설정 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  /* 브랜드 색상 */
   --genie-blue: #5C6AC4;
   --mint-green: #5FC9A4;
   --gold: #FFD466;
   --coral: #FF6B6B;
   --background: #F8FAFC;
   --foreground: #1E293B;
+  --soft-lavender: #F3F4F9;
+  --soft-ivory: #FFFCF7;
 }
 
 body {
-  background-color: var(--background);
+  background-color: var(--soft-lavender);
   color: var(--foreground);
+  font-family: sans-serif;
 }
 
-@layer base {
-  body {
-    @apply bg-[var(--background)] text-[var(--foreground)] font-sans;
-  }
+/* 카드 컴포넌트 스타일 */
+.card {
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
 }
 
-@layer components {
-  .card {
-    @apply bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200;
-  }
-
-  .btn-primary {
-    @apply bg-[var(--genie-blue)] text-white px-4 py-2 rounded-lg 
-           hover:bg-opacity-90 transition-all duration-200
-           hover:shadow-md hover:scale-[1.02];
-  }
-
-  .btn-secondary {
-    @apply bg-[var(--mint-green)] text-white px-4 py-2 rounded-lg 
-           hover:bg-opacity-90 transition-all duration-200
-           hover:shadow-md hover:scale-[1.02];
-  }
-
-  .btn-accent {
-    @apply bg-[var(--gold)] text-[var(--foreground)] px-4 py-2 rounded-lg 
-           hover:bg-opacity-90 transition-all duration-200
-           hover:shadow-md hover:scale-[1.02];
-  }
-
-  .input-field {
-    @apply w-full px-4 py-2 rounded-lg border border-gray-200
-           focus:outline-none focus:ring-2 focus:ring-[var(--genie-blue)]
-           transition-all duration-200;
-  }
-
-  .magic-hover {
-    @apply hover:shadow-[0_0_15px_rgba(92,106,196,0.2)] 
-           transition-all duration-300;
-  }
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* Genie Magic Animation */
+/* 버튼 스타일 */
+.btn-primary {
+  background-color: var(--genie-blue);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  box-shadow: 0 0 15px rgba(92,106,196,0.3);
+  transform: scale(1.02);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: var(--mint-green);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+  opacity: 0.9;
+  box-shadow: 0 0 15px rgba(95,201,164,0.3);
+  transform: scale(1.02);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-accent {
+  background-color: var(--gold);
+  color: var(--foreground);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.btn-accent:hover {
+  opacity: 0.9;
+  box-shadow: 0 0 15px rgba(255,212,102,0.3);
+  transform: scale(1.02);
+}
+
+.btn-accent:active {
+  transform: scale(0.98);
+}
+
+.btn-accent:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 입력 필드 스타일 */
+.input-field {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  background-color: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s;
+}
+
+.input-field::placeholder {
+  color: #9ca3af;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: transparent;
+  box-shadow: 0 0 0 2px var(--genie-blue);
+}
+
+/* 마법 효과 스타일 */
+.magic-hover {
+  transition: all 0.3s;
+}
+
+.magic-hover:hover {
+  box-shadow: 0 0 20px rgba(92,106,196,0.2);
+}
+
+/* 섹션 헤더 스타일 */
+.section-header {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--genie-blue);
+  position: relative;
+  display: inline-block;
+}
+
+.section-header::after {
+  content: '✨';
+  position: absolute;
+  right: -1.5rem;
+  top: -0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.section-header:hover::after {
+  opacity: 1;
+}
+
+/* 마법 애니메이션 */
 @keyframes sparkle {
-  0% { transform: scale(1); opacity: 1; }
+  0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.2); opacity: 0.8; }
-  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 .magic-effect {
-  @apply relative;
+  position: relative;
 }
 
 .magic-effect::after {
   content: '✨';
   position: absolute;
-  top: -10px;
-  right: -10px;
-  animation: sparkle 1.5s infinite;
+  top: -0.5rem;
+  right: -1rem;
+  color: var(--gold);
+  font-size: 1.25rem;
   opacity: 0;
   transition: opacity 0.3s;
+  animation: sparkle 1.5s ease-in-out infinite;
 }
 
 .magic-effect:hover::after {
   opacity: 1;
+}
+
+/* 저장 성공 애니메이션 */
+.save-success {
+  animation: float 0.6s ease-in-out;
+}
+
+/* 로딩 스피너 */
+.loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 4px solid rgba(92, 106, 196, 0.2);
+  border-top: 4px solid var(--genie-blue);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
