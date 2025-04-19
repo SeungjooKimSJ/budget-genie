@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 interface SignUpFormProps {
@@ -22,6 +22,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
     confirmPassword: '',
   });
 
+  // 필드 참조
+  const lastNameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
+
   // 비밀번호 유효성 검사 상태
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
     minLength: false,
@@ -29,6 +35,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
     hasNumber: false,
     hasSpecial: false,
   });
+
+  // 폼 유효성 상태
+  const [isFormValid, setIsFormValid] = useState(false);
 
   // 비밀번호 표시 상태
   const [showPassword, setShowPassword] = useState(false);
@@ -45,6 +54,23 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
 
   // 이름 필드 문자 수 제한
   const NAME_MAX_LENGTH = 20;
+
+  // 자동 포커스 이동
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, nextRef: React.RefObject<HTMLInputElement> | null) => {
+    if (e.key === 'Enter' && nextRef?.current) {
+      e.preventDefault();
+      nextRef.current.focus();
+    }
+  };
+
+  // 폼 유효성 검사
+  useEffect(() => {
+    const isAllFieldsFilled = Object.values(formData).every(value => value.trim() !== '');
+    const isPasswordValid = Object.values(passwordValidation).every(Boolean);
+    const isPasswordMatch = formData.password === formData.confirmPassword;
+
+    setIsFormValid(isAllFieldsFilled && isPasswordValid && isPasswordMatch);
+  }, [formData, passwordValidation]);
 
   // 비밀번호 유효성 검사
   useEffect(() => {
@@ -71,23 +97,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isFormValid) return;
+
     setError(null);
     setIsLoading(true);
-
-    // 비밀번호 유효성 검사
-    const isPasswordValid = Object.values(passwordValidation).every(Boolean);
-    if (!isPasswordValid) {
-      setError('Please ensure your password meets all requirements');
-      setIsLoading(false);
-      return;
-    }
-
-    // 비밀번호 확인 검증
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords don't match");
-      setIsLoading(false);
-      return;
-    }
 
     try {
       // 이름 결합
@@ -138,13 +151,17 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
     }));
   };
 
+  const RequiredMark = () => (
+    <span className="text-red-500 ml-1">*</span>
+  );
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
       {/* 이름 입력 필드 (First Name & Last Name) */}
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
         <div className="flex-1">
           <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-            First Name
+            First Name<RequiredMark />
           </label>
           <input
             type="text"
@@ -152,10 +169,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
+            onKeyDown={(e) => handleKeyDown(e, lastNameRef)}
             placeholder="John"
             maxLength={NAME_MAX_LENGTH}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all placeholder-gray-400 capitalize"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all placeholder-gray-400 capitalize"
             required
+            autoFocus
           />
           {formData.firstName.length === NAME_MAX_LENGTH && (
             <p className="mt-1 text-xs text-amber-600">
@@ -165,17 +184,19 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
         </div>
         <div className="flex-1">
           <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-            Last Name
+            Last Name<RequiredMark />
           </label>
           <input
+            ref={lastNameRef}
             type="text"
             id="lastName"
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
+            onKeyDown={(e) => handleKeyDown(e, emailRef)}
             placeholder="Doe"
             maxLength={NAME_MAX_LENGTH}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all placeholder-gray-400 capitalize"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all placeholder-gray-400 capitalize"
             required
           />
           {formData.lastName.length === NAME_MAX_LENGTH && (
@@ -189,41 +210,46 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
       {/* 이메일 입력 필드 */}
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-          Email
+          Email<RequiredMark />
         </label>
         <input
+          ref={emailRef}
           type="email"
           id="email"
           name="email"
           value={formData.email}
           onChange={handleChange}
+          onKeyDown={(e) => handleKeyDown(e, passwordRef)}
           placeholder="your@email.com"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all placeholder-gray-400"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all placeholder-gray-400"
           required
+          inputMode="email"
         />
       </div>
 
       {/* 비밀번호 입력 필드 */}
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-          Password
+          Password<RequiredMark />
         </label>
         <div className="relative">
           <input
+            ref={passwordRef}
             type={showPassword ? "text" : "password"}
             id="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
+            onKeyDown={(e) => handleKeyDown(e, confirmPasswordRef)}
             placeholder="Enter your password"
             minLength={6}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all pr-10 placeholder-gray-400"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all pr-10 placeholder-gray-400"
             required
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? (
@@ -258,10 +284,11 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
       {/* 비밀번호 확인 필드 */}
       <div>
         <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-          Confirm Password
+          Confirm Password<RequiredMark />
         </label>
         <div className="relative">
           <input
+            ref={confirmPasswordRef}
             type={showConfirmPassword ? "text" : "password"}
             id="confirmPassword"
             name="confirmPassword"
@@ -269,7 +296,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
             onChange={handleChange}
             placeholder="Enter your password again"
             minLength={6}
-            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all pr-10 placeholder-gray-400
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all pr-10 placeholder-gray-400
               ${isConfirmPasswordValid === true ? 'border-green-500' : 
                 isConfirmPasswordValid === false ? 'border-red-500' : 'border-gray-300'}`}
             required
@@ -277,7 +304,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
             aria-label={showConfirmPassword ? "Hide password" : "Show password"}
           >
             {showConfirmPassword ? (
@@ -321,8 +348,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
 
       <button
         type="submit"
-        disabled={isLoading}
-        className="w-full bg-genie-blue text-white py-2 px-4 rounded-lg hover:bg-opacity-90 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={!isFormValid || isLoading}
+        className="w-full bg-genie-blue text-white py-3 px-4 rounded-lg hover:bg-opacity-90 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:scale-100 mt-6"
       >
         {isLoading ? 'Creating Account...' : 'Create Account'}
       </button>
