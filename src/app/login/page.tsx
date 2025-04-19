@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { getRandomSlogan } from '@/utils/slogans';
+import Modal from '@/components/Modal';
+import SignUpForm from '@/components/SignUpForm';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -13,6 +15,7 @@ export default function LoginPage() {
   const supabase = createClientComponentClient();
   const router = useRouter();
   const [slogan, setSlogan] = useState('');
+  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
 
   useEffect(() => {
     setSlogan(getRandomSlogan());
@@ -24,113 +27,102 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      console.log('Attempting to sign in with:', email);
+      // 로그인 시도
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        console.error('Sign in error:', error);
+        // 로그인 에러 발생 시 처리
+        console.error('로그인 에러:', error);
         throw error;
       }
 
       if (data?.session) {
-        console.log('Sign in successful, setting session');
-        // Navigate first, then update session
-        router.push('/');
-        // Update session in the background
+        // 로그인 성공 시 처리
+        console.log('로그인 성공, 세션 설정 중');
         await supabase.auth.setSession(data.session);
+        router.push('/dashboard');
       }
     } catch (error) {
-      console.error('Error:', error);
       setError('Invalid email or password. Please try again.');
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
-        <div>
-          <h1 className="text-4xl font-bold text-genie-blue magic-hover">
-            Budget Genie
-          </h1>
-          <p className="mt-2 text-gray-600">
-            {slogan}
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-soft-lavender to-soft-ivory p-4">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-genie p-8 space-y-6">
+          <h1 className="text-3xl font-bold text-center text-genie-blue">Budget Genie</h1>
+          <p className="text-center text-gray-600">{slogan}</p>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="sr-only">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email
               </label>
               <input
-                id="email"
-                name="email"
                 type="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email"
+                id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all"
+                placeholder="Enter your email"
+                required
               />
             </div>
+            
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Password
               </label>
               <input
-                id="password"
-                name="password"
                 type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all"
+                placeholder="Enter your password"
+                required
               />
             </div>
-          </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
+                {error}
+              </div>
+            )}
 
-          <div>
             <button
               type="submit"
               disabled={isLoading}
-              className={`
-                group relative w-full flex justify-center py-2 px-4 
-                border border-transparent text-sm font-medium rounded-md 
-                text-white transition-all duration-200 ease-in-out
-                ${isLoading ? 'bg-indigo-400 cursor-not-allowed' : 
-                  'bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg hover:scale-[1.02] cursor-pointer'
-                }
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
-              `}
+              className="w-full bg-genie-blue text-white py-2 px-4 rounded-lg hover:bg-opacity-90 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
             >
-              {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Signing in...
-                </div>
-              ) : (
-                'Sign In'
-              )}
+              {isLoading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+
+          <div className="text-center">
+            <button
+              onClick={() => setIsSignUpModalOpen(true)}
+              className="text-genie-blue hover:text-opacity-80 transition-colors"
+            >
+              Don't have an account? Sign Up
             </button>
           </div>
-        </form>
+        </div>
       </div>
+
+      <Modal
+        isOpen={isSignUpModalOpen}
+        onClose={() => setIsSignUpModalOpen(false)}
+        title="Create Account"
+      >
+        <SignUpForm onClose={() => setIsSignUpModalOpen(false)} />
+      </Modal>
     </div>
   );
 } 
