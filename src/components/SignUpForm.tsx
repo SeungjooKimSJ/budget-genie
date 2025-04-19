@@ -8,16 +8,20 @@ interface SignUpFormProps {
 const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
   // 폼 데이터 상태 관리
   const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
-    name: '',
   });
 
   // 에러 상태 관리
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClientComponentClient();
+
+  // 이름 필드 문자 수 제한
+  const NAME_MAX_LENGTH = 20;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,14 +36,17 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
     }
 
     try {
+      // 이름 결합
+      const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+
       // Supabase로 회원가입 요청
       const { data, error: signUpError } = await supabase.auth.signUp({
-        email: formData.email,
+        email: formData.email.toLowerCase(),
         password: formData.password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
-            full_name: formData.name,
+            full_name: fullName,
           },
         },
       });
@@ -53,7 +60,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
         // 회원가입 성공 시 처리
         console.log('회원가입 성공');
         onClose();
-        // 추가적인 성공 메시지나 리다이렉션을 여기에 구현할 수 있습니다
       }
     } catch (error: any) {
       console.error('Error details:', error);
@@ -65,29 +71,68 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    let processedValue = value;
+
+    // 이메일의 첫 글자를 자동으로 소문자로 변환
+    if (name === 'email' && value.length > 0) {
+      processedValue = value.charAt(0).toLowerCase() + value.slice(1);
+    }
+
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: processedValue
     }));
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-          Name
-        </label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all"
-          required
-        />
+      {/* 이름 입력 필드 (First Name & Last Name) */}
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+            First Name
+          </label>
+          <input
+            type="text"
+            id="firstName"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            placeholder="John"
+            maxLength={NAME_MAX_LENGTH}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all placeholder-gray-400 capitalize"
+            required
+          />
+          {formData.firstName.length === NAME_MAX_LENGTH && (
+            <p className="mt-1 text-xs text-amber-600">
+              Maximum character limit reached
+            </p>
+          )}
+        </div>
+        <div className="flex-1">
+          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+            Last Name
+          </label>
+          <input
+            type="text"
+            id="lastName"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            placeholder="Doe"
+            maxLength={NAME_MAX_LENGTH}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all placeholder-gray-400 capitalize"
+            required
+          />
+          {formData.lastName.length === NAME_MAX_LENGTH && (
+            <p className="mt-1 text-xs text-amber-600">
+              Maximum character limit reached
+            </p>
+          )}
+        </div>
       </div>
 
+      {/* 이메일 입력 필드 */}
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
           Email
@@ -98,7 +143,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onClose }) => {
           name="email"
           value={formData.email}
           onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all"
+          placeholder="your@email.com"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-genie-blue focus:border-transparent transition-all placeholder-gray-400"
           required
         />
       </div>
