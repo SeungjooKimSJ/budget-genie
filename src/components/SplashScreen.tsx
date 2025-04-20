@@ -39,6 +39,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const [message, setMessage] = useState(MAGICAL_SUBHEADINGS[0]);
   const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0]);
   const [isClient, setIsClient] = useState(false);
+  const [showLogo, setShowLogo] = useState(false);
 
   // 메시지 초기화 (클라이언트 사이드에서만 실행)
   useEffect(() => {
@@ -47,6 +48,11 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
     const randomLoadingMessage = LOADING_MESSAGES[getRandomIndex(LOADING_MESSAGES)];
     setMessage(randomMessage);
     setLoadingMessage(randomLoadingMessage);
+    
+    // 로고 애니메이션 시작 (0.5초 후)
+    setTimeout(() => {
+      setShowLogo(true);
+    }, 500);
   }, []);
 
   const handleComplete = () => {
@@ -107,9 +113,18 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         flex flex-col items-center justify-center gap-6
         transition-all duration-800 ease-in-out
         ${isFading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}
+        group
       `}>
         {/* 로고 */}
-        <h1 className="text-4xl md:text-5xl font-bold text-white text-center drop-shadow-glow mb-0">
+        <h1 className={`
+          text-4xl md:text-5xl font-bold text-white text-center
+          transform transition-all duration-1500 ease-out
+          ${showLogo 
+            ? 'opacity-100 translate-y-0 blur-none' 
+            : 'opacity-0 translate-y-4 blur-sm'
+          }
+          drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]
+        `}>
           Budget Genie
         </h1>
 
