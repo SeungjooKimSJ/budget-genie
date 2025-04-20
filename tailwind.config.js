@@ -14,6 +14,17 @@ module.exports = {
         'coral': '#F87171',
         'soft-lavender': '#E9D5FF',
         'soft-ivory': '#FEFCE8',
+        'genie': {
+          'primary': '#4338ca', // indigo-700
+          'secondary': '#818cf8', // indigo-400
+          'accent': '#fbbf24', // yellow-400
+        },
+        'pastel': {
+          'primary': '#f0d6ff',
+          'secondary': '#ffe2f3',
+          'accent': '#ffead6',
+          'text': '#9d4edd',
+        },
       },
       keyframes: {
         float: {

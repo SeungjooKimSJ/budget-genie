@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import LoadingIndicator from './LoadingIndicator';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface SplashScreenProps {
   onComplete?: () => void;
@@ -32,6 +33,7 @@ const getRandomIndex = (array: string[]) => Math.floor(Math.random() * array.len
 
 // 스플래시 스크린 컴포넌트: 앱 시작시 로딩 화면을 표시
 export default function SplashScreen({ onComplete }: SplashScreenProps) {
+  const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const [isVisible, setIsVisible] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -101,29 +103,46 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
       className={`
         fixed inset-0
         flex flex-col items-center justify-center min-h-screen 
-        bg-gradient-to-br from-soft-lavender via-genie-blue to-[#1a237e]
         transition-all duration-800 ease-in-out
+        ${theme === 'default'
+          ? 'bg-gradient-to-br from-indigo-100 via-indigo-300 to-indigo-600'
+          : 'bg-gradient-to-br from-pastel-primary via-pastel-secondary to-pastel-accent'
+        }
         ${isFading ? 'bg-opacity-0 backdrop-brightness-0' : 'bg-opacity-100'}
         cursor-pointer
       `}
       onClick={handleClick}
     >
+      {/* 테마 전환 버튼 */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleTheme();
+        }}
+        className={`absolute top-4 right-4 p-3 rounded-full transition-all duration-300 transform hover:scale-110
+          ${theme === 'default'
+            ? 'bg-white/20 hover:bg-white/30 text-white'
+            : 'bg-white/40 hover:bg-white/50 text-pastel-text'
+          }
+          ${isFading ? 'opacity-0' : 'opacity-100'}
+        `}
+        aria-label="Toggle theme"
+      >
+        {theme === 'default' ? '🌸' : '🌙'}
+      </button>
+
       <div className={`
         relative w-full max-w-md p-4
         flex flex-col items-center justify-center gap-6
         transition-all duration-800 ease-in-out
         ${isFading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}
-        group
       `}>
         {/* 로고 */}
         <h1 className={`
-          text-4xl md:text-5xl font-bold text-white text-center
+          text-4xl md:text-5xl font-bold text-center mb-0
+          ${theme === 'default' ? 'text-white' : 'text-pastel-text'}
+          ${showLogo ? 'opacity-100 translate-y-0 blur-none' : 'opacity-0 translate-y-4 blur-sm'}
           transform transition-all duration-1500 ease-out
-          ${showLogo 
-            ? 'opacity-100 translate-y-0 blur-none' 
-            : 'opacity-0 translate-y-4 blur-sm'
-          }
-          drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]
         `}>
           Budget Genie
         </h1>
@@ -142,7 +161,9 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
                 src="/images/budget-genie-mascot.png"
                 alt="Budget Genie Mascot"
                 fill
-                className="drop-shadow-glow"
+                className={`
+                  ${theme === 'default' ? 'drop-shadow-glow' : 'drop-shadow-[0_0_8px_rgba(157,78,221,0.5)]'}
+                `}
                 priority
                 sizes="(max-width: 768px) 160px, 224px"
                 style={{ 
@@ -162,17 +183,21 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         {/* 매지컬 서브헤딩 */}
         <div className="space-y-4 mt-0">
           <h2 className={`
-            text-xl md:text-2xl font-semibold text-soft-ivory text-center
+            text-xl md:text-2xl font-semibold text-center
             transition-opacity duration-800
-            drop-shadow-glow animate-twinkle
+            animate-twinkle
             ${isLoading ? 'opacity-0' : 'opacity-100'}
+            ${theme === 'default' ? 'text-soft-ivory drop-shadow-glow' : 'text-pastel-text drop-shadow-[0_0_8px_rgba(157,78,221,0.5)]'}
             px-4
           `}>
             {message}
           </h2>
 
           {/* 로딩 메시지 */}
-          <p className="text-lg md:text-xl text-soft-ivory text-center opacity-80">
+          <p className={`
+            text-lg md:text-xl text-center opacity-80
+            ${theme === 'default' ? 'text-soft-ivory' : 'text-pastel-text'}
+          `}>
             {loadingMessage}
           </p>
         </div>
