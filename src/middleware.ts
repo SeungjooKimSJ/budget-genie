@@ -1,80 +1,36 @@
-import { createServerClient } from '@supabase/ssr';
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
+  const supabase = createMiddlewareClient({ req, res });
 
-  // Create a Supabase client configured to use cookies
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get: (name) => req.cookies.get(name)?.value,
-        set: (name, value, options) => {
-          res.cookies.set({
-            name,
-            value,
-            ...options,
-            sameSite: 'lax',
-            path: '/',
-          });
-        },
-        remove: (name, options) => {
-          res.cookies.set({
-            name,
-            value: '',
-            ...options,
-            maxAge: 0,
-            path: '/',
-          });
-        },
-      },
-    }
-  );
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    const pathname = req.nextUrl.pathname;
+  // 인증이 필요한 경로들
+  const authRequired = req.nextUrl.pathname.startsWith('/dashboard');
 
-    // Skip middleware for public routes and API routes
-    if (pathname.startsWith('/_next') || 
-        pathname.startsWith('/static') || 
-        pathname.startsWith('/api/') ||
-        pathname === '/favicon.ico' ||
-        pathname === '/' ||  // Allow access to splash screen
-        pathname === '/login') {  // Allow access to login page
-      return res;
-    }
-
-    // Only handle initial SSR requests, let client handle the rest
-    const isSSRRequest = !req.headers.get('sec-fetch-mode');
-    if (!isSSRRequest) {
-      return res;
-    }
-
-    // Handle authentication for protected routes
-    if (!session && pathname !== '/login') {
-      const redirectUrl = new URL('/login', req.url);
-      return NextResponse.redirect(redirectUrl);
-    }
-
-    // Redirect authenticated users to dashboard
-    if (session) {
-      if (pathname === '/login' || pathname === '/') {
-        const redirectUrl = new URL('/dashboard', req.url);
-        return NextResponse.redirect(redirectUrl);
-      }
-    }
-
-    return res;
-  } catch (error) {
-    console.error('Middleware - Error:', error);
-    return res;
+  if (authRequired && !session) {
+    const redirectUrl = req.nextUrl.clone();
+    redirectUrl.pathname = '/login';
+    return NextResponse.redirect(redirectUrl);
   }
+
+  return res;
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)',],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public (public files)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+  ],
 }; 

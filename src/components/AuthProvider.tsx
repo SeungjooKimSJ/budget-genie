@@ -22,47 +22,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClientComponentClient();
 
   useEffect(() => {
-    // 세션 상태 변경 시 실행할 핸들러
-    const handleAuthChange = async (session: Session | null) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session) {
-        console.log('Session is valid, user is authenticated');
-      } else {
-        console.log('No valid session found');
-      }
-    };
-
-    // 초기 세션 체크
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        await handleAuthChange(session);
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setSession(null);
+          setUser(null);
+        } else {
+          setSession(currentSession);
+          setUser(currentSession?.user ?? null);
+        }
       } catch (error) {
-        console.error('Error checking initial session:', error);
-        await handleAuthChange(null);
+        console.error('Error during auth initialization:', error);
+        setSession(null);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    // Auth 상태 변경 구독
+    initializeAuth();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event);
-        await handleAuthChange(session);
+      async (_event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
       }
     );
-
-    initializeAuth();
 
     return () => {
       subscription.unsubscribe();
     };
   }, [supabase]);
 
-  // 라우팅 로직을 별도의 useEffect로 분리
   useEffect(() => {
     if (!isLoading) {
       if (session) {
@@ -85,10 +79,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error signing out:', error);
     }
   };
-
-  if (isLoading) {
-    return null;
-  }
 
   return (
     <AuthContext.Provider value={{ user, session, signOut, isLoading }}>

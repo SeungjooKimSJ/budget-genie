@@ -8,20 +8,33 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'genie-blue': '#5C6AC4',
-        'mint-green': '#5FC9A4',
-        'gold': '#FFD466',
-        'coral': '#FF6B6B',
-        'soft-lavender': '#F3F4F9',
-        'soft-ivory': '#FFFCF7',
+        'genie-blue': '#1E40AF',
+        'mint-green': '#34D399',
+        'gold': '#F59E0B',
+        'coral': '#F87171',
+        'soft-lavender': '#E9D5FF',
+        'soft-ivory': '#FEFCE8',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        twinkle: {
+          '0%, 100%': { opacity: '0.1' },
+          '50%': { opacity: '0.3' },
+        }
       },
       animation: {
-        'sparkle': 'sparkle 1.5s ease-in-out infinite',
-        'float': 'float 0.6s ease-in-out',
+        float: 'float 3s ease-in-out infinite',
+        twinkle: 'twinkle 4s ease-in-out infinite',
       },
-      boxShadow: {
-        'genie': '0 0 15px rgba(92,106,196,0.2)',
+      dropShadow: {
+        'glow': '0 0 8px rgba(245, 158, 11, 0.5)',
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      }
     },
   },
   plugins: [],
