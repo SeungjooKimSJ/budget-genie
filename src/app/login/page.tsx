@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { getRandomSlogan } from '@/utils/slogans';
@@ -18,6 +18,9 @@ export default function LoginPage() {
   const router = useRouter();
   const [slogan, setSlogan] = useState('');
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+
+  const colorButtonRef = useRef<HTMLButtonElement>(null);
+  const modeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setSlogan(getRandomSlogan());
@@ -62,6 +65,30 @@ export default function LoginPage() {
     return `bg-gradient-to-br ${baseClasses} ${mode === 'dark' ? 'brightness-75' : ''}`;
   };
 
+  const handleThemeChange = (newTheme: 'blue' | 'pink') => {
+    if (colorButtonRef.current) {
+      colorButtonRef.current.classList.add('fade');
+      setTimeout(() => {
+        setColorTheme(newTheme);
+        if (colorButtonRef.current) {
+          colorButtonRef.current.classList.remove('fade');
+        }
+      }, 150);
+    }
+  };
+
+  const handleModeToggle = () => {
+    if (modeButtonRef.current) {
+      modeButtonRef.current.classList.add('fade');
+      setTimeout(() => {
+        toggleMode();
+        if (modeButtonRef.current) {
+          modeButtonRef.current.classList.remove('fade');
+        }
+      }, 150);
+    }
+  };
+
   return (
     <div className={`min-h-screen flex items-center justify-center p-4 relative ${getThemeClasses()}`}>
       {/* 테마 컨트롤 컨테이너 */}
@@ -69,8 +96,9 @@ export default function LoginPage() {
         {/* 컬러 테마 선택기 */}
         {colorTheme === 'blue' ? (
           <button
-            onClick={() => setColorTheme('pink')}
-            className="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
+            ref={colorButtonRef}
+            onClick={() => handleThemeChange('pink')}
+            className="theme-button p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
             aria-label="Switch to pink theme"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-pink-300" viewBox="0 0 24 24" fill="currentColor">
@@ -80,8 +108,9 @@ export default function LoginPage() {
           </button>
         ) : (
           <button
-            onClick={() => setColorTheme('blue')}
-            className="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
+            ref={colorButtonRef}
+            onClick={() => handleThemeChange('blue')}
+            className="theme-button p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
             aria-label="Switch to blue theme"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
@@ -93,8 +122,9 @@ export default function LoginPage() {
 
         {/* 다크모드 토글 */}
         <button
-          onClick={toggleMode}
-          className="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
+          ref={modeButtonRef}
+          onClick={handleModeToggle}
+          className="theme-button p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
           aria-label="Toggle dark mode"
         >
           {mode === 'light' ? (

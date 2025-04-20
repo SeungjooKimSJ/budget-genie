@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import LoadingIndicator from './LoadingIndicator';
@@ -42,6 +42,9 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0]);
   const [isClient, setIsClient] = useState(false);
   const [showLogo, setShowLogo] = useState(false);
+
+  const colorButtonRef = useRef<HTMLButtonElement>(null);
+  const modeButtonRef = useRef<HTMLButtonElement>(null);
 
   // 메시지 초기화 (클라이언트 사이드에서만 실행)
   useEffect(() => {
@@ -100,6 +103,30 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
     return `bg-gradient-to-br ${baseClasses} ${mode === 'dark' ? 'brightness-75' : ''}`;
   };
 
+  const handleThemeChange = (newTheme: 'blue' | 'pink') => {
+    if (colorButtonRef.current) {
+      colorButtonRef.current.classList.add('fade');
+      setTimeout(() => {
+        setColorTheme(newTheme);
+        if (colorButtonRef.current) {
+          colorButtonRef.current.classList.remove('fade');
+        }
+      }, 150);
+    }
+  };
+
+  const handleModeToggle = () => {
+    if (modeButtonRef.current) {
+      modeButtonRef.current.classList.add('fade');
+      setTimeout(() => {
+        toggleMode();
+        if (modeButtonRef.current) {
+          modeButtonRef.current.classList.remove('fade');
+        }
+      }, 150);
+    }
+  };
+
   if (!isVisible) return null;
 
   if (!isClient) {
@@ -127,11 +154,12 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         {/* 컬러 테마 선택기 */}
         {colorTheme === 'blue' ? (
           <button
+            ref={colorButtonRef}
             onClick={(e) => {
               e.stopPropagation();
-              setColorTheme('pink');
+              handleThemeChange('pink');
             }}
-            className="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
+            className="theme-button p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
             aria-label="Switch to pink theme"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-pink-300" viewBox="0 0 24 24" fill="currentColor">
@@ -141,11 +169,12 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           </button>
         ) : (
           <button
+            ref={colorButtonRef}
             onClick={(e) => {
               e.stopPropagation();
-              setColorTheme('blue');
+              handleThemeChange('blue');
             }}
-            className="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
+            className="theme-button p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
             aria-label="Switch to blue theme"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
@@ -157,11 +186,12 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
         {/* 다크모드 토글 */}
         <button
+          ref={modeButtonRef}
           onClick={(e) => {
             e.stopPropagation();
-            toggleMode();
+            handleModeToggle();
           }}
-          className="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
+          className="theme-button p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
           aria-label="Toggle dark mode"
         >
           {mode === 'light' ? (
