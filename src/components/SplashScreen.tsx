@@ -35,6 +35,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const router = useRouter();
   const [isVisible, setIsVisible] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFading, setIsFading] = useState(false);
   const [message, setMessage] = useState(MAGICAL_SUBHEADINGS[0]);
   const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0]);
   const [isClient, setIsClient] = useState(false);
@@ -58,11 +59,13 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
   // 전환 효과를 처리하는 함수
   const handleTransition = () => {
-    setIsLoading(false);
-    setTimeout(() => {
-      setIsVisible(false);
-      handleComplete();
-    }, 500);
+    if (!isFading) {
+      setIsFading(true);
+      setTimeout(() => {
+        setIsVisible(false);
+        handleComplete();
+      }, 800); // fadeOut 애니메이션 시간
+    }
   };
 
   // 클릭 시 즉시 전환
@@ -89,10 +92,22 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
   return (
     <div 
-      className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-soft-lavender via-genie-blue to-[#1a237e] p-4 cursor-pointer"
+      className={`
+        fixed inset-0
+        flex flex-col items-center justify-center min-h-screen 
+        bg-gradient-to-br from-soft-lavender via-genie-blue to-[#1a237e]
+        transition-all duration-800 ease-in-out
+        ${isFading ? 'bg-opacity-0 backdrop-brightness-0' : 'bg-opacity-100'}
+        cursor-pointer
+      `}
       onClick={handleClick}
     >
-      <div className="flex flex-col items-center justify-center w-full max-w-md gap-6">
+      <div className={`
+        relative w-full max-w-md p-4
+        flex flex-col items-center justify-center gap-6
+        transition-all duration-800 ease-in-out
+        ${isFading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}
+      `}>
         {/* 로고 */}
         <h1 className="text-4xl md:text-5xl font-bold text-white text-center drop-shadow-glow mb-0">
           Budget Genie
@@ -102,7 +117,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         <div className="relative w-40 h-40 md:w-56 md:h-56 -mt-1">
           <div className={`
             relative w-full h-full
-            transition-all duration-500
+            transition-all duration-800
             ${isLoading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}
             animate-float
             flex items-center justify-center
@@ -133,7 +148,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         <div className="space-y-4 mt-0">
           <h2 className={`
             text-xl md:text-2xl font-semibold text-soft-ivory text-center
-            transition-opacity duration-500
+            transition-opacity duration-800
             drop-shadow-glow animate-twinkle
             ${isLoading ? 'opacity-0' : 'opacity-100'}
             px-4
