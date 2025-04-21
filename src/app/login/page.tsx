@@ -18,12 +18,51 @@ export default function LoginPage() {
   const router = useRouter();
   const [slogan, setSlogan] = useState('');
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+  const [isSloganVisible, setIsSloganVisible] = useState(true);
+  const [transitionEffect, setTransitionEffect] = useState<'fade-up' | 'fade-scale' | 'fade-rotate' | 'fade-slide'>('fade-up');
 
   const colorButtonRef = useRef<HTMLButtonElement>(null);
   const modeButtonRef = useRef<HTMLButtonElement>(null);
+  const currentSloganRef = useRef('');
+
+  const getRandomEffect = () => {
+    const effects: ('fade-up' | 'fade-scale' | 'fade-rotate' | 'fade-slide')[] = [
+      'fade-up',
+      'fade-scale',
+      'fade-rotate',
+      'fade-slide'
+    ];
+    return effects[Math.floor(Math.random() * effects.length)];
+  };
 
   useEffect(() => {
-    setSlogan(getRandomSlogan());
+    const getNewSlogan = () => {
+      let newSlogan;
+      do {
+        newSlogan = getRandomSlogan();
+      } while (newSlogan === currentSloganRef.current);
+      currentSloganRef.current = newSlogan;
+      return newSlogan;
+    };
+
+    const updateSlogan = () => {
+      setIsSloganVisible(false);
+      setTransitionEffect(getRandomEffect());
+      setTimeout(() => {
+        setSlogan(getNewSlogan());
+        setIsSloganVisible(true);
+      }, 400);
+    };
+
+    // 초기 슬로건 설정
+    const initialSlogan = getRandomSlogan();
+    currentSloganRef.current = initialSlogan;
+    setSlogan(initialSlogan);
+
+    // 5초마다 슬로건 변경
+    const interval = setInterval(updateSlogan, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,6 +128,26 @@ export default function LoginPage() {
     }
   };
 
+  const getTransitionClasses = () => {
+    const baseClasses = 'text-center transition-all duration-400 ease-in-out transform';
+    const effectClasses = {
+      'fade-up': isSloganVisible 
+        ? 'translate-y-0 opacity-100' 
+        : 'translate-y-6 opacity-0',
+      'fade-scale': isSloganVisible 
+        ? 'scale-100 opacity-100' 
+        : 'scale-90 opacity-0',
+      'fade-rotate': isSloganVisible 
+        ? 'rotate-0 opacity-100 translate-y-0' 
+        : '-rotate-6 opacity-0 translate-y-2',
+      'fade-slide': isSloganVisible 
+        ? 'translate-x-0 opacity-100' 
+        : 'translate-x-8 opacity-0'
+    };
+    
+    return `${baseClasses} ${effectClasses[transitionEffect]}`;
+  };
+
   return (
     <div className={`min-h-screen flex items-center justify-center p-4 relative ${getThemeClasses()}`}>
       {/* 테마 컨트롤 컨테이너 */}
@@ -152,9 +211,16 @@ export default function LoginPage() {
           }
         `}>
           <h1 className="text-3xl font-bold text-center">Budget Genie</h1>
-          <p className={`text-center ${mode === 'light' ? 'opacity-80' : 'opacity-70'}`}>
-            {slogan}
-          </p>
+          <div className="flex items-center justify-center py-4 md:h-auto h-14 overflow-hidden md:overflow-visible">
+            <p className={`
+              ${getTransitionClasses()}
+              ${mode === 'light' ? 'opacity-80' : 'opacity-70'}
+              will-change-transform will-change-opacity
+              text-sm md:text-base
+            `}>
+              {slogan}
+            </p>
+          </div>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -239,10 +305,15 @@ export default function LoginPage() {
             <button
               onClick={() => setIsSignUpModalOpen(true)}
               className={`
-                transition-colors
+                text-sm transition-all duration-300
+                hover:underline
                 ${colorTheme === 'blue'
-                  ? (mode === 'light' ? 'text-indigo-700 hover:text-indigo-900' : 'text-indigo-300 hover:text-indigo-100')
-                  : (mode === 'light' ? 'text-pastel-text/80 hover:text-pastel-text' : 'text-pastel-primary/80 hover:text-pastel-primary')
+                  ? (mode === 'light' 
+                    ? 'text-indigo-700 hover:text-indigo-900' 
+                    : 'text-indigo-300 hover:text-indigo-100')
+                  : (mode === 'light' 
+                    ? 'text-pastel-text/80 hover:text-pastel-text' 
+                    : 'text-pastel-primary/80 hover:text-pastel-primary')
                 }
               `}
             >
