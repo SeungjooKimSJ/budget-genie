@@ -141,9 +141,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         transition-all duration-800 ease-in-out
         ${getThemeClasses()}
         ${isFading ? 'bg-opacity-0 backdrop-brightness-0' : 'bg-opacity-100'}
-        cursor-pointer
       `}
-      onClick={handleClick}
     >
       {/* 테마 컨트롤 컨테이너 */}
       <div className={`
@@ -206,12 +204,16 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         </button>
       </div>
 
-      <div className={`
-        relative w-full max-w-md p-4
-        flex flex-col items-center justify-center gap-6
-        transition-all duration-800 ease-in-out
-        ${isFading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}
-      `}>
+      <div 
+        className={`
+          relative w-full max-w-md p-4
+          flex flex-col items-center justify-center gap-6
+          transition-all duration-800 ease-in-out
+          ${isFading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}
+          cursor-pointer
+        `}
+        onClick={handleClick}
+      >
         {/* 로고 */}
         <h1 className={`
           text-4xl md:text-5xl font-bold text-center mb-0
@@ -270,9 +272,14 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             animate-twinkle
             ${isLoading ? 'opacity-0' : 'opacity-100'}
             ${colorTheme === 'blue'
-              ? (mode === 'light' ? 'text-soft-ivory drop-shadow-glow' : 'text-indigo-100')
-              : (mode === 'light' ? 'text-pastel-text' : 'text-pastel-primary')
+              ? (mode === 'light' 
+                ? 'text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.6)]' 
+                : 'text-indigo-100 drop-shadow-[0_0_25px_rgba(165,180,252,0.6)]')
+              : (mode === 'light' 
+                ? 'text-pastel-text drop-shadow-[0_0_25px_rgba(157,78,221,0.4)]' 
+                : 'text-pastel-primary drop-shadow-[0_0_25px_rgba(157,78,221,0.6)]')
             }
+            tracking-wide
             px-4
           `}>
             {message}
@@ -280,10 +287,14 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
           {/* 로딩 메시지 */}
           <p className={`
-            text-lg md:text-xl text-center opacity-80
+            text-lg md:text-xl text-center
             ${colorTheme === 'blue'
-              ? (mode === 'light' ? 'text-soft-ivory' : 'text-indigo-200')
-              : (mode === 'light' ? 'text-pastel-text' : 'text-pastel-primary')
+              ? (mode === 'light' 
+                ? 'text-white/90 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]' 
+                : 'text-indigo-200 drop-shadow-[0_0_15px_rgba(165,180,252,0.4)]')
+              : (mode === 'light' 
+                ? 'text-pastel-text/90 drop-shadow-[0_0_15px_rgba(157,78,221,0.3)]' 
+                : 'text-pastel-primary/90 drop-shadow-[0_0_15px_rgba(157,78,221,0.5)]')
             }
           `}>
             {loadingMessage}
