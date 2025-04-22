@@ -7,6 +7,7 @@ import { getRandomSlogan } from '@/utils/slogans';
 import Modal from '@/components/Modal';
 import SignUpForm from '@/components/SignUpForm';
 import { useTheme } from '@/contexts/ThemeContext';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const { colorTheme, mode, setColorTheme, toggleMode } = useTheme();
@@ -210,7 +211,26 @@ export default function LoginPage() {
             : (mode === 'light' ? 'text-pastel-text' : 'text-pastel-primary')
           }
         `}>
-          <h1 className="text-3xl font-bold text-center">Budget Genie</h1>
+          <h1 className="text-3xl font-bold text-center flex items-center justify-center gap-2">
+            Budget Genie
+            <Image
+              src="/images/budget-genie-mascot.png"
+              alt="Budget Genie"
+              width={32}
+              height={32}
+              className={`
+                ${colorTheme === 'blue'
+                  ? (mode === 'light' 
+                    ? 'drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]' 
+                    : 'drop-shadow-[0_0_8px_rgba(165,180,252,0.5)]')
+                  : (mode === 'light' 
+                    ? 'drop-shadow-[0_0_8px_rgba(157,78,221,0.4)]' 
+                    : 'drop-shadow-[0_0_8px_rgba(157,78,221,0.6)]')
+                }
+                ${mode === 'dark' ? 'brightness-90' : ''}
+              `}
+            />
+          </h1>
           <div className="flex items-center justify-center py-4 md:h-auto h-14 overflow-hidden md:overflow-visible">
             <p className={`
               ${getTransitionClasses()}
