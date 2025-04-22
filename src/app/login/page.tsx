@@ -15,8 +15,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isShaking, setIsShaking] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const supabase = createClientComponentClient();
   const router = useRouter();
   const [slogan, setSlogan] = useState('');
@@ -24,8 +22,6 @@ export default function LoginPage() {
   const [isSloganVisible, setIsSloganVisible] = useState(true);
   const [transitionEffect, setTransitionEffect] = useState<'fade-up' | 'fade-scale' | 'fade-rotate' | 'fade-slide'>('fade-up');
 
-  const colorButtonRef = useRef<HTMLButtonElement>(null);
-  const modeButtonRef = useRef<HTMLButtonElement>(null);
   const currentSloganRef = useRef('');
 
   const getRandomEffect = () => {
@@ -57,14 +53,11 @@ export default function LoginPage() {
       }, 400);
     };
 
-    // 초기 슬로건 설정
     const initialSlogan = getRandomSlogan();
     currentSloganRef.current = initialSlogan;
     setSlogan(initialSlogan);
 
-    // 5초마다 슬로건 변경
     const interval = setInterval(updateSlogan, 5000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -80,16 +73,13 @@ export default function LoginPage() {
       });
 
       if (error) {
-        console.error('로그인 에러:', error);
         setError('Invalid email or password');
-        throw error;
+        return;
       }
 
       if (data?.session) {
         router.push('/dashboard');
       }
-    } catch (error) {
-      console.error('로그인 에러:', error);
     } finally {
       setIsLoading(false);
     }
@@ -104,27 +94,7 @@ export default function LoginPage() {
   };
 
   const handleThemeChange = (newTheme: 'blue' | 'pink') => {
-    if (colorButtonRef.current) {
-      colorButtonRef.current.classList.add('fade');
-      setTimeout(() => {
-        setColorTheme(newTheme);
-        if (colorButtonRef.current) {
-          colorButtonRef.current.classList.remove('fade');
-        }
-      }, 150);
-    }
-  };
-
-  const handleModeToggle = () => {
-    if (modeButtonRef.current) {
-      modeButtonRef.current.classList.add('fade');
-      setTimeout(() => {
-        toggleMode();
-        if (modeButtonRef.current) {
-          modeButtonRef.current.classList.remove('fade');
-        }
-      }, 150);
-    }
+    setColorTheme(newTheme);
   };
 
   const getTransitionClasses = () => {
@@ -149,14 +119,11 @@ export default function LoginPage() {
 
   return (
     <div className={`min-h-screen flex items-center justify-center p-4 relative ${getThemeClasses()}`}>
-      {/* 테마 컨트롤 컨테이너 */}
       <div className="absolute top-4 right-4 flex items-center gap-3">
-        {/* 컬러 테마 선택기 */}
         {colorTheme === 'blue' ? (
           <button
-            ref={colorButtonRef}
             onClick={() => handleThemeChange('pink')}
-            className="theme-button p-2 sm:p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
+            className="p-2 sm:p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
             aria-label="Switch to pink theme"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 sm:w-6 sm:h-6 text-pink-300" viewBox="0 0 24 24" fill="currentColor">
@@ -166,9 +133,8 @@ export default function LoginPage() {
           </button>
         ) : (
           <button
-            ref={colorButtonRef}
             onClick={() => handleThemeChange('blue')}
-            className="theme-button p-2 sm:p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
+            className="p-2 sm:p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
             aria-label="Switch to blue theme"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
@@ -178,11 +144,9 @@ export default function LoginPage() {
           </button>
         )}
 
-        {/* 다크모드 토글 */}
         <button
-          ref={modeButtonRef}
-          onClick={handleModeToggle}
-          className="theme-button p-2 sm:p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
+          onClick={toggleMode}
+          className="p-2 sm:p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110"
           aria-label="Toggle dark mode"
         >
           {mode === 'light' ? (
@@ -308,7 +272,18 @@ export default function LoginPage() {
 
             <div className="h-5 mt-1 transition-all duration-300 ease-in-out">
               {error ? (
-                <div className="bg-red-100 border border-red-400 text-red-500 text-sm rounded px-3 py-2 transition-all duration-300 ease-in-out opacity-100">
+                <div className={`
+                  text-sm rounded px-3 py-2 
+                  transition-all duration-300 ease-in-out opacity-100
+                  ${colorTheme === 'blue'
+                    ? (mode === 'light'
+                      ? 'bg-red-50 border border-red-200 text-red-600'
+                      : 'bg-red-900/30 border border-red-800/50 text-red-300')
+                    : (mode === 'light'
+                      ? 'bg-pink-50 border border-pink-200 text-pink-600'
+                      : 'bg-pink-900/30 border border-pink-800/50 text-pink-300')
+                  }
+                `}>
                   {error}
                 </div>
               ) : (
