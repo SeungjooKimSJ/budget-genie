@@ -201,10 +201,13 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md">
         <div className={`
-          backdrop-blur-sm rounded-2xl shadow-xl p-8 space-y-6
+          backdrop-blur-sm rounded-2xl p-8 space-y-6
+          transition-all duration-300
+          hover:shadow-2xl hover:scale-[1.01]
+          shadow-[0_10px_40px_-15px_rgba(0,0,0,0.2)]
           ${mode === 'light'
-            ? 'bg-white/90'
-            : 'bg-gray-900/90'
+            ? 'bg-white/90 shadow-gray-400/20'
+            : 'bg-gray-900/90 shadow-black/30'
           }
           ${colorTheme === 'blue'
             ? (mode === 'light' ? 'text-indigo-900' : 'text-indigo-100')
@@ -216,9 +219,12 @@ export default function LoginPage() {
             <Image
               src="/images/budget-genie-mascot.png"
               alt="Budget Genie"
-              width={32}
-              height={32}
+              width={48}
+              height={48}
+              priority
               className={`
+                object-contain
+                w-[48px] h-[48px]
                 ${colorTheme === 'blue'
                   ? (mode === 'light' 
                     ? 'drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]' 
@@ -227,8 +233,9 @@ export default function LoginPage() {
                     ? 'drop-shadow-[0_0_8px_rgba(157,78,221,0.4)]' 
                     : 'drop-shadow-[0_0_8px_rgba(157,78,221,0.6)]')
                 }
-                ${mode === 'dark' ? 'brightness-90' : ''}
               `}
+              quality={100}
+              sizes="48px"
             />
           </h1>
           <div className="flex items-center justify-center py-4 md:h-auto h-14 overflow-hidden md:overflow-visible">
