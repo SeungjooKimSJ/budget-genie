@@ -6,6 +6,7 @@ const config: Config = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       backgroundImage: {
@@ -42,12 +43,17 @@ const config: Config = {
           '50%': { opacity: '0.5' },
           '100%': { opacity: '1' },
         },
+        'pulse-slow': {
+          '0%, 100%': { opacity: '0.5' },
+          '50%': { opacity: '0.8' },
+        },
       },
       animation: {
         'float': 'float 3s ease-in-out infinite',
         'twinkle': 'twinkle 2s ease-in-out infinite',
         'sparkle': 'sparkle 0.3s ease-in-out',
         'fade-click': 'fadeClick 0.4s ease-in-out',
+        'pulse-slow': 'pulse-slow 8s ease-in-out infinite',
       },
     },
   },
